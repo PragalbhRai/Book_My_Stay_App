@@ -1,85 +1,72 @@
-import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.Queue;
 
 /**
  * ================================================================
- * CLASS - RoomInventory
+ * CLASS - Reservation
  * ================================================================
- * Use Case 4: Room Search & Availability Check
- * @version 4.1
+ *
+ * Represents a guest's booking request.
+ *
+ * @version 5.1
  */
 
-class RoomInventory {
+class Reservation {
 
-    private HashMap<String, Integer> inventory;
+    private String guestName;
+    private String roomType;
 
-    public RoomInventory() {
-
-        inventory = new HashMap<>();
-
-        inventory.put("Single Room", 5);
-        inventory.put("Double Room", 3);
-        inventory.put("Suite Room", 2);
+    public Reservation(String guestName, String roomType) {
+        this.guestName = guestName;
+        this.roomType = roomType;
     }
 
-    public int getAvailability(String roomType) {
-        return inventory.getOrDefault(roomType, 0);
-    }
-}
-
-
-/**
- * ================================================================
- * ABSTRACT ROOM CLASS
- * ================================================================
- */
-
-abstract class Room {
-
-    protected String type;
-    protected int beds;
-    protected int size;
-    protected double price;
-
-    public Room(String type, int beds, int size, double price) {
-        this.type = type;
-        this.beds = beds;
-        this.size = size;
-        this.price = price;
+    public String getGuestName() {
+        return guestName;
     }
 
-    public void displayRoom(int available) {
-
-        System.out.println(type + ":");
-        System.out.println("Beds: " + beds);
-        System.out.println("Size: " + size + " sqft");
-        System.out.println("Price per night: " + price);
-        System.out.println("Available: " + available);
-        System.out.println();
+    public String getRoomType() {
+        return roomType;
     }
 }
 
 
 /**
  * ================================================================
- * ROOM TYPES
+ * CLASS - BookingRequestQueue
  * ================================================================
+ *
+ * Stores booking requests using FIFO ordering.
  */
 
-class SingleRoom extends Room {
-    public SingleRoom() {
-        super("Single Room", 1, 250, 1500.0);
-    }
-}
+class BookingRequestQueue {
 
-class DoubleRoom extends Room {
-    public DoubleRoom() {
-        super("Double Room", 2, 400, 2500.0);
-    }
-}
+    private Queue<Reservation> queue;
 
-class SuiteRoom extends Room {
-    public SuiteRoom() {
-        super("Suite Room", 3, 750, 5000.0);
+    public BookingRequestQueue() {
+        queue = new LinkedList<>();
+    }
+
+    // Add booking request
+    public void addRequest(Reservation reservation) {
+        queue.add(reservation);
+    }
+
+    // Process requests in FIFO order
+    public void processRequests() {
+
+        System.out.println("Booking Request Queue");
+
+        while (!queue.isEmpty()) {
+
+            Reservation r = queue.poll();
+
+            System.out.println(
+                    "Processing booking for Guest: "
+                            + r.getGuestName()
+                            + ", Room Type: "
+                            + r.getRoomType());
+        }
     }
 }
 
@@ -94,25 +81,14 @@ public class BookMyStay {
 
     public static void main(String[] args) {
 
-        System.out.println("Room Search\n");
+        BookingRequestQueue bookingQueue = new BookingRequestQueue();
 
-        RoomInventory inventory = new RoomInventory();
+        // Guests submit booking requests
+        bookingQueue.addRequest(new Reservation("Abhi", "Single"));
+        bookingQueue.addRequest(new Reservation("Subha", "Double"));
+        bookingQueue.addRequest(new Reservation("Vanmathi", "Suite"));
 
-        Room single = new SingleRoom();
-        Room doubleRoom = new DoubleRoom();
-        Room suite = new SuiteRoom();
-
-        int singleAvail = inventory.getAvailability("Single Room");
-        int doubleAvail = inventory.getAvailability("Double Room");
-        int suiteAvail = inventory.getAvailability("Suite Room");
-
-        if (singleAvail > 0)
-            single.displayRoom(singleAvail);
-
-        if (doubleAvail > 0)
-            doubleRoom.displayRoom(doubleAvail);
-
-        if (suiteAvail > 0)
-            suite.displayRoom(suiteAvail);
+        // Process queue
+        bookingQueue.processRequests();
     }
 }
